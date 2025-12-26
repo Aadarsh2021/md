@@ -1,4 +1,6 @@
-# Fleet AI Planner Pro - System Architecture Documentation
+# Fleet AI Planner Pro
+
+## System Architecture Documentation
 
 **Version:** 1.0.0  
 **Last Updated:** December 2025  
@@ -18,19 +20,28 @@ A file-based fleet management and capital planning system designed for utility c
 
 ### Target Users
 
-- **Fleet Managers**: Day-to-day vehicle inventory management
-- **Capital Planning Teams**: Multi-year budget forecasting and scenario planning
-- **Finance Directors**: Budget oversight and cost analysis
-- **Operations Managers**: Fleet utilization and lifecycle tracking
-- **Sustainability Officers**: EV transition planning and compliance
+- **Fleet Managers** — Day-to-day vehicle inventory management
+- **Capital Planning Teams** — Multi-year budget forecasting and scenario planning  
+- **Finance Directors** — Budget oversight and cost analysis
+- **Operations Managers** — Fleet utilization and lifecycle tracking
+- **Sustainability Officers** — EV transition planning and compliance
 
 ### Problems Solved
 
-1. **Manual Fleet Tracking**: Replaces spreadsheet-based fleet management with centralized web interface
-2. **Capital Planning Complexity**: Automates multi-year forecasting with configurable parameters
-3. **Data Accessibility**: Maintains Excel-based storage for easy audit and non-technical user access
-4. **Compliance Tracking**: Automated out-of-lifecycle vehicle monitoring
-5. **Cost Optimization**: TCO calculations and scenario comparison for replacement strategies
+**1. Manual Fleet Tracking**  
+Replaces spreadsheet-based fleet management with centralized web interface
+
+**2. Capital Planning Complexity**  
+Automates multi-year forecasting with configurable parameters
+
+**3. Data Accessibility**  
+Maintains Excel-based storage for easy audit and non-technical user access
+
+**4. Compliance Tracking**  
+Automated out-of-lifecycle vehicle monitoring
+
+**5. Cost Optimization**  
+TCO calculations and scenario comparison for replacement strategies
 
 ---
 
@@ -38,36 +49,42 @@ A file-based fleet management and capital planning system designed for utility c
 
 ### Architecture Style
 
-**Client-Server with File-Based Persistence**
+#### Client-Server with File-Based Persistence
 
-This is a traditional web application architecture with a critical distinction: **data persistence uses Excel files instead of a relational database**. This design choice prioritizes:
+This is a traditional web application architecture with a critical distinction: **data persistence uses Excel files instead of a relational database**.
 
-- Auditability (Excel files can be opened and reviewed directly)
-- Accessibility (non-technical users can inspect data)
-- Portability (files can be easily backed up and shared)
-- Simplicity (no database server management)
+This design choice prioritizes:
+
+- **Auditability** — Excel files can be opened and reviewed directly
+- **Accessibility** — Non-technical users can inspect data
+- **Portability** — Files can be easily backed up and shared
+- **Simplicity** — No database server management
 
 ### Key Design Principles
 
-1. **File-Based Data Layer**
-   - Excel files (.xlsx) serve as the primary data store
-   - JSON files provide performance caching for analytics
-   - Pandas library handles all Excel I/O operations
+#### 1. File-Based Data Layer
 
-2. **Deterministic Logic**
-   - All calculations use rule-based algorithms
-   - No machine learning or AI models (despite "AI" in the name)
-   - Forecasting uses linear projections and configurable parameters
+- Excel files (.xlsx) serve as the primary data store
+- JSON files provide performance caching for analytics
+- Pandas library handles all Excel I/O operations
 
-3. **Stateless API**
-   - Flask REST API with JWT authentication
-   - No server-side session storage
-   - Each request is independent
+#### 2. Deterministic Logic
 
-4. **Client-Side State Management**
-   - TanStack Query handles server state caching
-   - React Context for authentication state
-   - No global state management library (Redux, Zustand, etc.)
+- All calculations use rule-based algorithms
+- **No machine learning or AI models** (despite "AI" in the name)
+- Forecasting uses linear projections and configurable parameters
+
+#### 3. Stateless API
+
+- Flask REST API with JWT authentication
+- No server-side session storage
+- Each request is independent
+
+#### 4. Client-Side State Management
+
+- TanStack Query handles server state caching
+- React Context for authentication state
+- No global state management library (Redux, Zustand, etc.)
 
 ### Why This Architecture Was Chosen
 
@@ -94,10 +111,10 @@ This is a traditional web application architecture with a critical distinction: 
 
 **Tradeoffs Accepted:**
 
-- Limited concurrent write operations (Excel file locking)
-- No ACID transaction guarantees
-- Scalability ceiling (file I/O bottleneck)
-- Manual data integrity enforcement
+- ❌ Limited concurrent write operations (Excel file locking)
+- ❌ No ACID transaction guarantees
+- ❌ Scalability ceiling (file I/O bottleneck)
+- ❌ Manual data integrity enforcement
 
 ---
 
@@ -105,7 +122,7 @@ This is a traditional web application architecture with a critical distinction: 
 
 ### Request-Response Cycle
 
-```
+```text
 ┌─────────┐      HTTPS/JSON      ┌─────────┐      Pandas      ┌──────────┐
 │ Browser │ ◄──────────────────► │  Flask  │ ◄──────────────► │  Excel   │
 │ (React) │                      │   API   │                  │  Files   │
@@ -119,22 +136,41 @@ TanStack Query                  Route Blueprints              .xlsx files
 
 ### Data Flow Explanation
 
-1. **User Interaction**: User interacts with React UI (clicks, form submissions, navigation)
-2. **API Request**: Frontend makes HTTP request via Axios to Flask backend
-3. **Authentication**: JWT token validated on protected routes
-4. **Route Handling**: Flask Blueprint routes request to appropriate handler
-5. **Service Invocation**: Route handler delegates to service layer
-6. **Excel I/O**: Service uses Pandas to read/write Excel files
-7. **Data Processing**: Business logic applied (calculations, aggregations, filtering)
-8. **Response Formation**: Data serialized to JSON
-9. **Client Update**: TanStack Query caches response and updates React components
-10. **UI Render**: React re-renders with new data
+**1. User Interaction**  
+User interacts with React UI (clicks, form submissions, navigation)
+
+**2. API Request**  
+Frontend makes HTTP request via Axios to Flask backend
+
+**3. Authentication**  
+JWT token validated on protected routes
+
+**4. Route Handling**  
+Flask Blueprint routes request to appropriate handler
+
+**5. Service Invocation**  
+Route handler delegates to service layer
+
+**6. Excel I/O**  
+Service uses Pandas to read/write Excel files
+
+**7. Data Processing**  
+Business logic applied (calculations, aggregations, filtering)
+
+**8. Response Formation**  
+Data serialized to JSON
+
+**9. Client Update**  
+TanStack Query caches response and updates React components
+
+**10. UI Render**  
+React re-renders with new data
 
 ### Caching Strategy
 
-- **Client-Side**: TanStack Query caches API responses (configurable TTL)
-- **Server-Side**: JSON files cache expensive analytics calculations
-- **Cache Invalidation**: Manual invalidation on data mutations
+- **Client-Side** — TanStack Query caches API responses (configurable TTL)
+- **Server-Side** — JSON files cache expensive analytics calculations
+- **Cache Invalidation** — Manual invalidation on data mutations
 
 ---
 
@@ -150,10 +186,10 @@ TanStack Query                  Route Blueprints              .xlsx files
 
 **User Roles:**
 
-- **Admin**: Full system access, user management, configuration
-- **Manager**: Fleet management, planning, reporting
-- **Analyst**: Read-only access, custom reports, pivot tables
-- **Viewer**: Dashboard and basic reports only
+- **Admin** — Full system access, user management, configuration
+- **Manager** — Fleet management, planning, reporting
+- **Analyst** — Read-only access, custom reports, pivot tables
+- **Viewer** — Dashboard and basic reports only
 
 **Authentication:**
 
@@ -167,19 +203,21 @@ TanStack Query                  Route Blueprints              .xlsx files
 
 **Technology Stack:**
 
-- **React**: 18.3.1 (functional components, hooks)
-- **TypeScript**: 5.x (strict mode enabled)
-- **Vite**: 5.x (build tool, dev server)
-- **TanStack Query**: v4 (server state management)
-- **React Router**: v6 (client-side routing)
-- **Axios**: HTTP client with interceptors
-- **Recharts**: Chart library for data visualization
-- **Tailwind CSS**: Utility-first styling
-- **Shadcn/UI**: Component library (built on Radix UI)
+| Technology | Version | Purpose |
+| ---------- | ------- | ------- |
+| React | 18.3.1 | Functional components, hooks |
+| TypeScript | 5.x | Strict mode enabled |
+| Vite | 5.x | Build tool, dev server |
+| TanStack Query | v4 | Server state management |
+| React Router | v6 | Client-side routing |
+| Axios | Latest | HTTP client with interceptors |
+| Recharts | Latest | Chart library for data visualization |
+| Tailwind CSS | 3.x | Utility-first styling |
+| Shadcn/UI | Latest | Component library (built on Radix UI) |
 
 **Project Structure:**
 
-```
+```text
 fleet-front/
 ├── src/
 │   ├── components/        # Reusable UI components
@@ -193,37 +231,42 @@ fleet-front/
 
 **Key Modules:**
 
-1. **Dashboard** (`/dashboard`)
-   - Fleet summary cards (total vehicles, out-of-lifecycle count, etc.)
-   - Trend charts (cost over time, fleet composition)
-   - Quick actions (add vehicle, run forecast)
+**1. Dashboard** (`/dashboard`)
 
-2. **Fleet Manager** (`/fleet`)
-   - Vehicle inventory table with search/filter
-   - Vehicle detail view with edit capabilities
-   - Bulk import/export via Excel
+- Fleet summary cards (total vehicles, out-of-lifecycle count, etc.)
+- Trend charts (cost over time, fleet composition)
+- Quick actions (add vehicle, run forecast)
 
-3. **Pivot Grid** (`/pivot`)
-   - Dynamic pivot table builder
-   - Drag-and-drop dimensions and measures
-   - Custom aggregations (sum, avg, count, etc.)
+**2. Fleet Manager** (`/fleet`)
 
-4. **Planner** (`/planning`)
-   - Multi-year forecast configuration
-   - Scenario comparison (baseline vs. alternatives)
-   - Budget allocation interface
+- Vehicle inventory table with search/filter
+- Vehicle detail view with edit capabilities
+- Bulk import/export via Excel
 
-5. **Admin** (`/admin`)
-   - User management (CRUD operations)
-   - Cost parameter configuration
-   - System logs viewer
+**3. Pivot Grid** (`/pivot`)
+
+- Dynamic pivot table builder
+- Drag-and-drop dimensions and measures
+- Custom aggregations (sum, avg, count, etc.)
+
+**4. Planner** (`/planning`)
+
+- Multi-year forecast configuration
+- Scenario comparison (baseline vs. alternatives)
+- Budget allocation interface
+
+**5. Admin** (`/admin`)
+
+- User management (CRUD operations)
+- Cost parameter configuration
+- System logs viewer
 
 **State Management:**
 
-- **AuthContext**: User authentication state, token storage
-- **TanStack Query**: All server data (vehicles, forecasts, analytics)
-- **Local State**: UI-specific state (modal visibility, form inputs)
-- **URL State**: Route parameters, query strings
+- **AuthContext** — User authentication state, token storage
+- **TanStack Query** — All server data (vehicles, forecasts, analytics)
+- **Local State** — UI-specific state (modal visibility, form inputs)
+- **URL State** — Route parameters, query strings
 
 **API Integration:**
 
@@ -250,13 +293,15 @@ Axios interceptors handle:
 
 **Technology Stack:**
 
-- **Flask**: 2.3.3 (web framework)
-- **Flask-CORS**: Cross-origin resource sharing
-- **Flask-JWT-Extended**: JWT authentication
-- **Pandas**: 2.x (Excel I/O and data manipulation)
-- **NumPy**: 1.24+ (numerical computations)
-- **OpenPyXL**: Excel file reading/writing
-- **python-dotenv**: Environment variable management
+| Technology | Version | Purpose |
+| ---------- | ------- | ------- |
+| Flask | 2.3.3 | Web framework |
+| Flask-CORS | Latest | Cross-origin resource sharing |
+| Flask-JWT-Extended | Latest | JWT authentication |
+| Pandas | 2.x | Excel I/O and data manipulation |
+| NumPy | 1.24+ | Numerical computations |
+| OpenPyXL | Latest | Excel file reading/writing |
+| python-dotenv | Latest | Environment variable management |
 
 **Application Factory Pattern:**
 
@@ -269,10 +314,10 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 **Blueprint Registration:**
 
-The application registers 16 route blueprints:
+The application registers **16 route blueprints**:
 
 | Blueprint | URL Prefix | Purpose |
-|-----------|------------|---------|
+| --------- | ---------- | ------- |
 | `health_bp` | `/health` | Health check endpoint |
 | `auth_bp` | `/api/auth` | User authentication |
 | `fleet_bp` | `/api/fleet` | Vehicle CRUD operations |
@@ -292,21 +337,36 @@ The application registers 16 route blueprints:
 
 **Request Lifecycle:**
 
-1. **Request Reception**: Flask receives HTTP request
-2. **CORS Preflight**: OPTIONS requests handled automatically
-3. **JWT Validation**: Protected routes check Authorization header
-4. **Route Matching**: Request routed to appropriate Blueprint
-5. **Handler Execution**: Route handler function invoked
-6. **Service Call**: Handler delegates to service layer
-7. **Response Formation**: Data serialized to JSON
-8. **Response Return**: HTTP response sent to client
+**1. Request Reception**  
+Flask receives HTTP request
+
+**2. CORS Preflight**  
+OPTIONS requests handled automatically
+
+**3. JWT Validation**  
+Protected routes check Authorization header
+
+**4. Route Matching**  
+Request routed to appropriate Blueprint
+
+**5. Handler Execution**  
+Route handler function invoked
+
+**6. Service Call**  
+Handler delegates to service layer
+
+**7. Response Formation**  
+Data serialized to JSON
+
+**8. Response Return**  
+HTTP response sent to client
 
 **Error Handling:**
 
-- **400 Bad Request**: Invalid input data
-- **401 Unauthorized**: Missing or invalid JWT token
-- **404 Not Found**: Resource doesn't exist
-- **500 Internal Server Error**: Unhandled exceptions
+- **400 Bad Request** — Invalid input data
+- **401 Unauthorized** — Missing or invalid JWT token
+- **404 Not Found** — Resource doesn't exist
+- **500 Internal Server Error** — Unhandled exceptions
 
 All errors return JSON:
 
@@ -327,111 +387,154 @@ The service layer contains all business logic and data access. Services are **no
 
 #### Core Data Services
 
-1. **ExcelDataService** (`excel_data_service.py`)
-   - **Purpose**: Unified interface for all Excel file operations
-   - **Key Methods**:
-     - `read_excel(file_path, sheet_name)`: Read Excel sheet into DataFrame
-     - `write_excel(df, file_path, sheet_name)`: Write DataFrame to Excel
-     - `append_row(file_path, sheet_name, row_data)`: Append single row
-     - `update_row(file_path, sheet_name, row_id, updates)`: Update existing row
-     - `delete_row(file_path, sheet_name, row_id)`: Delete row
-   - **Caching**: Implements in-memory cache for frequently accessed files
-   - **Locking**: Uses file-based locking to prevent concurrent writes
+**1. ExcelDataService** (`excel_data_service.py`)
 
-2. **FileManagementService** (`file_management_service.py`)
-   - **Purpose**: File upload, validation, and storage
-   - **Capabilities**:
-     - Excel file validation (format, schema)
-     - CSV to Excel conversion
-     - File backup before overwrite
-     - Virus scanning (placeholder, not implemented)
+**Purpose:** Unified interface for all Excel file operations
 
-3. **LogsService** (`logs_service.py`)
-   - **Purpose**: System event logging
-   - **Log Types**:
-     - User actions (login, data changes)
-     - System events (errors, warnings)
-     - Audit trail (who changed what, when)
-   - **Storage**: Logs written to Excel file (`logs.xlsx`)
+**Key Methods:**
+
+- `read_excel(file_path, sheet_name)` — Read Excel sheet into DataFrame
+- `write_excel(df, file_path, sheet_name)` — Write DataFrame to Excel
+- `append_row(file_path, sheet_name, row_data)` — Append single row
+- `update_row(file_path, sheet_name, row_id, updates)` — Update existing row
+- `delete_row(file_path, sheet_name, row_id)` — Delete row
+
+**Features:**
+
+- Implements in-memory cache for frequently accessed files
+- Uses file-based locking to prevent concurrent writes
+
+**2. FileManagementService** (`file_management_service.py`)
+
+**Purpose:** File upload, validation, and storage
+
+**Capabilities:**
+
+- Excel file validation (format, schema)
+- CSV to Excel conversion
+- File backup before overwrite
+- Virus scanning (placeholder, not implemented)
+
+**3. LogsService** (`logs_service.py`)
+
+**Purpose:** System event logging
+
+**Log Types:**
+
+- User actions (login, data changes)
+- System events (errors, warnings)
+- Audit trail (who changed what, when)
+
+**Storage:** Logs written to Excel file (`logs.xlsx`)
 
 #### Domain Services
 
-1. **EquipmentService** (`equipment_service.py`)
-   - **Purpose**: Equipment lifecycle management
-   - **Data Source**: `equipment_lifecycle.xlsx`
-   - **Operations**:
-     - Get lifecycle thresholds by equipment type
-     - Calculate depreciation
-     - Determine replacement eligibility
+**4. EquipmentService** (`equipment_service.py`)
 
-2. **CostParametersService** (`cost_parameters_service.py`)
-   - **Purpose**: Economic parameter management
-   - **Data Source**: `cost_parameters.xlsx`
-   - **Parameters**:
-     - Inflation rate (annual percentage)
-     - Fuel costs (per gallon/kWh)
-     - Maintenance rates (per mile/year)
-     - Procurement costs (by vehicle type)
+**Purpose:** Equipment lifecycle management  
+**Data Source:** `equipment_lifecycle.xlsx`
 
-3. **FleetTimeService** (`fleet_time_service.py`)
-   - **Purpose**: Time-series fleet data
-   - **Data Source**: `fleet_time_data.xlsx`
-   - **Capabilities**:
-     - Utilization tracking over time
-     - Downtime analysis
-     - Temporal pattern detection
+**Operations:**
 
-4. **OOLAuditService** (`ool_audit_service.py`)
-   - **Purpose**: Out-of-lifecycle compliance tracking
-   - **Data Source**: `ool_audit_logs.xlsx`
-   - **Functions**:
-     - Log vehicles exceeding lifecycle limits
-     - Generate compliance reports
-     - Alert generation (email placeholders)
+- Get lifecycle thresholds by equipment type
+- Calculate depreciation
+- Determine replacement eligibility
+
+**5. CostParametersService** (`cost_parameters_service.py`)
+
+**Purpose:** Economic parameter management  
+**Data Source:** `cost_parameters.xlsx`
+
+**Parameters:**
+
+- Inflation rate (annual percentage)
+- Fuel costs (per gallon/kWh)
+- Maintenance rates (per mile/year)
+- Procurement costs (by vehicle type)
+
+**6. FleetTimeService** (`fleet_time_service.py`)
+
+**Purpose:** Time-series fleet data  
+**Data Source:** `fleet_time_data.xlsx`
+
+**Capabilities:**
+
+- Utilization tracking over time
+- Downtime analysis
+- Temporal pattern detection
+
+**7. OOLAuditService** (`ool_audit_service.py`)
+
+**Purpose:** Out-of-lifecycle compliance tracking  
+**Data Source:** `ool_audit_logs.xlsx`
+
+**Functions:**
+
+- Log vehicles exceeding lifecycle limits
+- Generate compliance reports
+- Alert generation (email placeholders)
 
 #### Computation Services
 
-1. **AnalyticsService** (`analytics_service.py`)
-   - **Purpose**: Dashboard statistics and KPI calculations
-   - **Key Metrics**:
-     - Total fleet count
-     - Out-of-lifecycle percentage
-     - Average vehicle age
-     - Total fleet value
-     - Cost per mile/year
-   - **Caching**: Results cached in `ANALYTICS_SUMMARY.json`
-   - **Cache Invalidation**: Manual invalidation on data changes
+**8. AnalyticsService** (`analytics_service.py`)
 
-2. **ScenarioService** (`scenario_service.py`)
-   - **Purpose**: Multi-year forecasting
-   - **Algorithm**: Linear projection with configurable growth rates
-   - **Inputs**:
-     - Current fleet composition
-     - Replacement schedule
-     - Cost parameters (inflation, fuel, maintenance)
-     - Budget constraints
-   - **Outputs**:
-     - Year-by-year fleet composition
-     - Annual costs (acquisition, maintenance, fuel)
-     - Budget variance
-   - **Note**: This is **deterministic calculation**, not AI/ML
+**Purpose:** Dashboard statistics and KPI calculations
 
-3. **DynamicPivotService** (`dynamic_pivot_service.py`)
-    - **Purpose**: Custom pivot table generation
-    - **Capabilities**:
-      - Multi-dimensional grouping
-      - Aggregation functions (sum, avg, count, min, max)
-      - Filtering and sorting
-    - **Implementation**: Uses Pandas `pivot_table()` function
+**Key Metrics:**
 
-4. **ReportsService** (`reports_service.py`)
-    - **Purpose**: Report generation
-    - **Report Types**:
-      - Fleet summary (PDF/Excel)
-      - Cost analysis (Excel)
-      - Lifecycle status (PDF)
-      - Out-of-lifecycle (Excel)
-    - **Generation**: Uses Pandas for Excel, ReportLab for PDF (future)
+- Total fleet count
+- Out-of-lifecycle percentage
+- Average vehicle age
+- Total fleet value
+- Cost per mile/year
+
+**Caching:** Results cached in `ANALYTICS_SUMMARY.json`  
+**Cache Invalidation:** Manual invalidation on data changes
+
+**9. ScenarioService** (`scenario_service.py`)
+
+**Purpose:** Multi-year forecasting  
+**Algorithm:** Linear projection with configurable growth rates
+
+**Inputs:**
+
+- Current fleet composition
+- Replacement schedule
+- Cost parameters (inflation, fuel, maintenance)
+- Budget constraints
+
+**Outputs:**
+
+- Year-by-year fleet composition
+- Annual costs (acquisition, maintenance, fuel)
+- Budget variance
+
+**Note:** This is **deterministic calculation**, not AI/ML
+
+**10. DynamicPivotService** (`dynamic_pivot_service.py`)
+
+**Purpose:** Custom pivot table generation
+
+**Capabilities:**
+
+- Multi-dimensional grouping
+- Aggregation functions (sum, avg, count, min, max)
+- Filtering and sorting
+
+**Implementation:** Uses Pandas `pivot_table()` function
+
+**11. ReportsService** (`reports_service.py`)
+
+**Purpose:** Report generation
+
+**Report Types:**
+
+- Fleet summary (PDF/Excel)
+- Cost analysis (Excel)
+- Lifecycle status (PDF)
+- Out-of-lifecycle (Excel)
+
+**Generation:** Uses Pandas for Excel, ReportLab for PDF (future)
 
 **Service Interaction:**
 
@@ -456,47 +559,49 @@ class AnalyticsService:
 
 The forecasting engine uses **deterministic, rule-based calculations**:
 
-1. **Baseline Projection**:
+#### 1. Baseline Projection
 
-   ```
-   Future Fleet Size = Current Size × (1 + Growth Rate)^Years
-   ```
+```text
+Future Fleet Size = Current Size × (1 + Growth Rate)^Years
+```
 
-2. **Replacement Logic**:
-   - Vehicles reaching age/mileage threshold are flagged
-   - Replacement cost = Procurement Cost × (1 + Inflation)^Years
-   - Replacement scheduled based on budget availability
+#### 2. Replacement Logic
 
-3. **Cost Modeling**:
+- Vehicles reaching age/mileage threshold are flagged
+- Replacement cost = Procurement Cost × (1 + Inflation)^Years
+- Replacement scheduled based on budget availability
 
-   ```
-   Total Annual Cost = Acquisition + Maintenance + Fuel + Depreciation
-   
-   Maintenance Cost = Base Rate × Miles × (1 + Age Factor)
-   Fuel Cost = Miles / MPG × Fuel Price
-   Depreciation = (Purchase Price - Salvage Value) / Useful Life
-   ```
+#### 3. Cost Modeling
 
-4. **EV Transition Logic**:
-   - User specifies EV adoption percentage by year
-   - System calculates infrastructure costs (chargers)
-   - Compares TCO: Traditional vs. EV
-   - **No AI/ML**: Simple cost comparison
+```text
+Total Annual Cost = Acquisition + Maintenance + Fuel + Depreciation
+
+Maintenance Cost = Base Rate × Miles × (1 + Age Factor)
+Fuel Cost = Miles / MPG × Fuel Price
+Depreciation = (Purchase Price - Salvage Value) / Useful Life
+```
+
+#### 4. EV Transition Logic
+
+- User specifies EV adoption percentage by year
+- System calculates infrastructure costs (chargers)
+- Compares TCO: Traditional vs. EV
+- **No AI/ML:** Simple cost comparison
 
 **Scenario Comparison:**
 
 Users can create multiple scenarios with different parameters:
 
-- Scenario A: 5% annual growth, 10% EV by 2030
-- Scenario B: 3% annual growth, 25% EV by 2030
+- **Scenario A:** 5% annual growth, 10% EV by 2030
+- **Scenario B:** 3% annual growth, 25% EV by 2030
 
 System calculates each scenario independently and presents side-by-side comparison.
 
 **Performance Optimization:**
 
-- **Caching**: Expensive calculations cached in JSON
-- **Lazy Loading**: Data loaded on-demand, not upfront
-- **Chunking**: Large Excel files processed in chunks (Pandas `chunksize`)
+- **Caching** — Expensive calculations cached in JSON
+- **Lazy Loading** — Data loaded on-demand, not upfront
+- **Chunking** — Large Excel files processed in chunks (Pandas `chunksize`)
 
 ---
 
@@ -507,7 +612,7 @@ System calculates each scenario independently and presents side-by-side comparis
 All data stored in Excel files located in `backend/database/` directory:
 
 | File Name | Purpose | Key Columns | Approximate Size |
-|-----------|---------|-------------|------------------|
+| --------- | ------- | ----------- | ---------------- |
 | `users.xlsx` | User accounts | username, password_hash, role, email | < 1 MB |
 | `vehicle_fleet_master.xlsx` | Fleet inventory | vehicle_id, make, model, year, vin, dept, cost, mileage, status | 1-5 MB |
 | `equipment_lifecycle.xlsx` | Lifecycle rules | equipment_type, max_age, max_mileage, replacement_cost | < 1 MB |
@@ -519,8 +624,8 @@ All data stored in Excel files located in `backend/database/` directory:
 
 **JSON Cache Files:**
 
-| File Name | Purpose | Invalidation |
-|-----------|---------|--------------|
+| File Name                | Purpose        | Invalidation         |
+| ------------------------ | -------------- | -------------------- |
 | `ANALYTICS_SUMMARY.json` | Dashboard KPIs | On fleet data change |
 
 **Read/Write Behavior:**
@@ -536,20 +641,20 @@ All data stored in Excel files located in `backend/database/` directory:
 - Pandas `to_excel()` writes entire DataFrame to file
 - File-based locking prevents concurrent writes
 - Backup created before overwrite (`.bak` file)
-- **Risk**: Concurrent writes can corrupt file
+- **Risk:** Concurrent writes can corrupt file
 
 **Data Integrity:**
 
-- **No ACID Guarantees**: Excel files don't support transactions
-- **Manual Validation**: Services validate data before write
-- **Backup Strategy**: Daily file backups (external script)
-- **Corruption Recovery**: Restore from `.bak` file
+- **No ACID Guarantees** — Excel files don't support transactions
+- **Manual Validation** — Services validate data before write
+- **Backup Strategy** — Daily file backups (external script)
+- **Corruption Recovery** — Restore from `.bak` file
 
 **Scalability Limits:**
 
-- **File Size**: Performance degrades beyond 10 MB per file
-- **Concurrent Users**: Limited to ~5-10 simultaneous users
-- **Write Throughput**: ~1-2 writes/second per file
+- **File Size** — Performance degrades beyond 10 MB per file
+- **Concurrent Users** — Limited to ~5-10 simultaneous users
+- **Write Throughput** — ~1-2 writes/second per file
 
 ---
 
@@ -557,16 +662,16 @@ All data stored in Excel files located in `backend/database/` directory:
 
 **Backend Runtime:**
 
-- **Python**: 3.10+ (CPython interpreter)
-- **Process Model**: Single-threaded Flask development server (production: Gunicorn with 4 workers)
-- **Memory**: ~200-500 MB per worker process
-- **CPU**: Pandas operations are CPU-intensive (NumPy uses BLAS)
+- **Python:** 3.10+ (CPython interpreter)
+- **Process Model:** Single-threaded Flask development server (production: Gunicorn with 4 workers)
+- **Memory:** ~200-500 MB per worker process
+- **CPU:** Pandas operations are CPU-intensive (NumPy uses BLAS)
 
 **Frontend Runtime:**
 
-- **Node.js**: 18+ (development only)
-- **Build Output**: Static HTML/CSS/JS files
-- **Deployment**: Served via Nginx or similar web server
+- **Node.js:** 18+ (development only)
+- **Build Output:** Static HTML/CSS/JS files
+- **Deployment:** Served via Nginx or similar web server
 
 **File System Dependency:**
 
@@ -578,9 +683,9 @@ The system **requires** direct file system access:
 
 **Execution Model:**
 
-- **Synchronous**: All operations are synchronous (blocking I/O)
-- **No Background Jobs**: No Celery, RQ, or task queues
-- **No WebSockets**: No real-time updates (polling only)
+- **Synchronous** — All operations are synchronous (blocking I/O)
+- **No Background Jobs** — No Celery, RQ, or task queues
+- **No WebSockets** — No real-time updates (polling only)
 
 ---
 
@@ -590,51 +695,56 @@ The system **requires** direct file system access:
 
 *Refer to the provided architecture diagram image.*
 
-**Top Layer: User Interaction**
+#### Top Layer: User Interaction
 
-- **User**: End user accessing the system
-- **Browser**: Web browser (Chrome, Firefox, Edge, Safari)
-- **Connection**: HTTPS to frontend (Vite dev server or Nginx)
+- **User** — End user accessing the system
+- **Browser** — Web browser (Chrome, Firefox, Edge, Safari)
+- **Connection** — HTTPS to frontend (Vite dev server or Nginx)
 
-**Second Layer: Frontend (React + Vite)**
+#### Second Layer: Frontend (React + Vite)
 
-- **UI Core**: Main application shell (`App.tsx`)
-- **Auth Components**: Login, registration, password reset
-- **Dashboard Components**: KPI cards, charts, quick actions
-- **Scenario Builder**: Forecast configuration interface
-- **API Client**: Axios instance with interceptors
-- **State Management**: TanStack Query for server state
-- **Flow**: User interaction → Component → TanStack Query → API Client → HTTP request
+- **UI Core** — Main application shell (`App.tsx`)
+- **Auth Components** — Login, registration, password reset
+- **Dashboard Components** — KPI cards, charts, quick actions
+- **Scenario Builder** — Forecast configuration interface
+- **API Client** — Axios instance with interceptors
+- **State Management** — TanStack Query for server state
 
-**Third Layer: Backend (Flask API)**
+**Flow:** User interaction → Component → TanStack Query → API Client → HTTP request
 
-- **Flask App Entry**: Application factory (`app.py`)
-- **Controllers & Routes**: 16 Blueprint modules
-  - `/api/auth`: Authentication
-  - `/api/fleet`: Vehicle operations
-  - `/api/analytics`: Dashboard stats
-  - `/api/reports`: Report generation
-  - `/api/planning`: Forecasting
-  - `/api/cost`: Cost parameters
-  - `/api/pivot`: Pivot tables
-  - `/api/files`: File management
-  - `/api/ool`: Out-of-lifecycle tracking
-- **Services**: Business logic layer
-  - **Auth Service**: JWT validation
-  - **Scenario Service**: Forecasting logic
-  - **Analytics Service**: KPI calculations
-  - **Excel Service**: File I/O operations
-- **Flow**: HTTP request → Blueprint → Service → Excel I/O → Response
+#### Third Layer: Backend (Flask API)
 
-**Bottom Layer: File System Persistence**
+- **Flask App Entry** — Application factory (`app.py`)
+- **Controllers & Routes** — 16 Blueprint modules
+  - `/api/auth` — Authentication
+  - `/api/fleet` — Vehicle operations
+  - `/api/analytics` — Dashboard stats
+  - `/api/reports` — Report generation
+  - `/api/planning` — Forecasting
+  - `/api/cost` — Cost parameters
+  - `/api/pivot` — Pivot tables
+  - `/api/files` — File management
+  - `/api/ool` — Out-of-lifecycle tracking
 
-- **Master Data Files**:
-  - `users.xlsx`: User accounts
-  - `vehicle_fleet_master.xlsx`: Fleet inventory
-  - `cost_parameters.xlsx`: Economic parameters
-- **Cache Files**:
-  - `ANALYTICS_SUMMARY.json`: Dashboard cache
-- **Flow**: Service → Pandas → Excel file read/write
+- **Services** — Business logic layer
+  - **Auth Service** — JWT validation
+  - **Scenario Service** — Forecasting logic
+  - **Analytics Service** — KPI calculations
+  - **Excel Service** — File I/O operations
+
+**Flow:** HTTP request → Blueprint → Service → Excel I/O → Response
+
+#### Bottom Layer: File System Persistence
+
+- **Master Data Files:**
+  - `users.xlsx` — User accounts
+  - `vehicle_fleet_master.xlsx` — Fleet inventory
+  - `cost_parameters.xlsx` — Economic parameters
+
+- **Cache Files:**
+  - `ANALYTICS_SUMMARY.json` — Dashboard cache
+
+**Flow:** Service → Pandas → Excel file read/write
 
 **Data Flow:**
 
@@ -658,17 +768,17 @@ The system **requires** direct file system access:
 
 ### Example: User Opens Fleet Dashboard
 
-**Step 1: User Navigation**
+#### Step 1: User Navigation
 
 - User clicks "Dashboard" in navigation menu
 - React Router navigates to `/dashboard` route
 
-**Step 2: Component Mount**
+#### Step 2: Component Mount
 
 - `Dashboard.tsx` component mounts
 - `useQuery` hook triggers data fetch
 
-**Step 3: API Request**
+#### Step 3: API Request
 
 ```typescript
 // Frontend: services/analyticsService.ts
@@ -682,12 +792,12 @@ const { data, isLoading } = useQuery({
 });
 ```
 
-**Step 4: HTTP Request**
+#### Step 4: HTTP Request
 
 - Axios sends: `GET http://localhost:5000/api/analytics/summary`
 - Headers include: `Authorization: Bearer <JWT_TOKEN>`
 
-**Step 5: Backend Route Handling**
+#### Step 5: Backend Route Handling
 
 ```python
 # Backend: routes/analytics_routes.py
@@ -699,7 +809,7 @@ def get_summary():
     return jsonify(stats), 200
 ```
 
-**Step 6: Service Execution**
+#### Step 6: Service Execution
 
 ```python
 # Backend: services/analytics_service.py
@@ -728,7 +838,7 @@ class AnalyticsService:
         return stats
 ```
 
-**Step 7: Excel Read**
+#### Step 7: Excel Read
 
 ```python
 # Backend: services/excel_data_service.py
@@ -741,19 +851,19 @@ class ExcelDataService:
         return df
 ```
 
-**Step 8: Response Formation**
+#### Step 8: Response Formation
 
 - Service returns Python dict
 - Flask `jsonify()` converts to JSON
 - HTTP response: `200 OK` with JSON body
 
-**Step 9: Client Update**
+#### Step 9: Client Update
 
 - Axios receives response
 - TanStack Query caches data with key `['dashboard-stats']`
 - Component state updated
 
-**Step 10: UI Render**
+#### Step 10: UI Render
 
 ```typescript
 // Frontend: pages/Dashboard.tsx
@@ -788,13 +898,18 @@ return (
 
 **Tradeoffs:**
 
-- ❌ Limited concurrent write operations
-- ❌ No ACID transaction guarantees
-- ❌ File corruption risk
-- ❌ Scalability ceiling (~10 MB files, ~10 concurrent users)
-- ✅ Easy data inspection and audit
-- ✅ No database licensing costs
-- ✅ Portable (files can be moved between servers)
+❌ **Limitations:**
+
+- Limited concurrent write operations
+- No ACID transaction guarantees
+- File corruption risk
+- Scalability ceiling (~10 MB files, ~10 concurrent users)
+
+✅ **Benefits:**
+
+- Easy data inspection and audit
+- No database licensing costs
+- Portable (files can be moved between servers)
 
 ### Decision 2: Deterministic Logic (No AI/ML)
 
@@ -807,11 +922,16 @@ return (
 
 **Tradeoffs:**
 
-- ❌ No adaptive learning from historical patterns
-- ❌ Limited to rule-based scenarios
-- ✅ Predictable, explainable results
-- ✅ No model training or retraining required
-- ✅ Simpler codebase
+❌ **Limitations:**
+
+- No adaptive learning from historical patterns
+- Limited to rule-based scenarios
+
+✅ **Benefits:**
+
+- Predictable, explainable results
+- No model training or retraining required
+- Simpler codebase
 
 ### Decision 3: TanStack Query (No Redux)
 
@@ -823,11 +943,16 @@ return (
 
 **Tradeoffs:**
 
-- ❌ Limited global state management
-- ❌ Complex client-side state requires workarounds
-- ✅ Automatic cache invalidation
-- ✅ Built-in loading and error states
-- ✅ Less code to maintain
+❌ **Limitations:**
+
+- Limited global state management
+- Complex client-side state requires workarounds
+
+✅ **Benefits:**
+
+- Automatic cache invalidation
+- Built-in loading and error states
+- Less code to maintain
 
 ### Decision 4: Synchronous API (No Background Jobs)
 
@@ -839,10 +964,15 @@ return (
 
 **Tradeoffs:**
 
-- ❌ Long requests can timeout
-- ❌ No progress tracking for slow operations
-- ✅ Simpler architecture
-- ✅ Easier to debug
+❌ **Limitations:**
+
+- Long requests can timeout
+- No progress tracking for slow operations
+
+✅ **Benefits:**
+
+- Simpler architecture
+- Easier to debug
 
 ---
 
@@ -850,29 +980,53 @@ return (
 
 ### Scalability Limits
 
-1. **Concurrent Users**: ~5-10 simultaneous users before performance degrades
-2. **File Size**: Excel files >10 MB cause slow reads/writes
-3. **Write Throughput**: ~1-2 writes/second per file (file locking bottleneck)
-4. **Memory**: Each Pandas DataFrame loads entire file into memory
+**1. Concurrent Users**  
+~5-10 simultaneous users before performance degrades
+
+**2. File Size**  
+Excel files >10 MB cause slow reads/writes
+
+**3. Write Throughput**  
+~1-2 writes/second per file (file locking bottleneck)
+
+**4. Memory**  
+Each Pandas DataFrame loads entire file into memory
 
 ### Concurrency Limits
 
-1. **No Row-Level Locking**: Entire Excel file locked during write
-2. **Race Conditions**: Concurrent writes can corrupt files
-3. **No Transaction Support**: Partial writes can leave data inconsistent
+**1. No Row-Level Locking**  
+Entire Excel file locked during write
+
+**2. Race Conditions**  
+Concurrent writes can corrupt files
+
+**3. No Transaction Support**  
+Partial writes can leave data inconsistent
 
 ### Data Integrity Risks
 
-1. **File Corruption**: Power loss during write can corrupt Excel file
-2. **Manual Validation**: No database constraints (foreign keys, unique constraints)
-3. **Backup Dependency**: Recovery requires manual file restore
+**1. File Corruption**  
+Power loss during write can corrupt Excel file
+
+**2. Manual Validation**  
+No database constraints (foreign keys, unique constraints)
+
+**3. Backup Dependency**  
+Recovery requires manual file restore
 
 ### Functional Limitations
 
-1. **No Real-Time Updates**: UI requires manual refresh or polling
-2. **No Audit Trail**: Limited change tracking (only in logs.xlsx)
-3. **No Multi-Tenancy**: Single organization only
-4. **No API Versioning**: Breaking changes affect all clients
+**1. No Real-Time Updates**  
+UI requires manual refresh or polling
+
+**2. No Audit Trail**  
+Limited change tracking (only in logs.xlsx)
+
+**3. No Multi-Tenancy**  
+Single organization only
+
+**4. No API Versioning**  
+Breaking changes affect all clients
 
 ---
 
@@ -882,10 +1036,10 @@ return (
 
 **Migration Path:**
 
-1. **Phase 1**: Dual-write (Excel + PostgreSQL) for validation
-2. **Phase 2**: Read from PostgreSQL, write to both
-3. **Phase 3**: Deprecate Excel writes, keep as backup
-4. **Phase 4**: Full PostgreSQL migration
+**Phase 1:** Dual-write (Excel + PostgreSQL) for validation  
+**Phase 2:** Read from PostgreSQL, write to both  
+**Phase 3:** Deprecate Excel writes, keep as backup  
+**Phase 4:** Full PostgreSQL migration
 
 **Benefits:**
 
@@ -906,9 +1060,14 @@ return (
 
 **Potential Use Cases:**
 
-1. **Predictive Maintenance**: ML model predicts vehicle failures
-2. **Anomaly Detection**: Identify unusual cost patterns
-3. **Demand Forecasting**: ML-based fleet size predictions
+**1. Predictive Maintenance**  
+ML model predicts vehicle failures
+
+**2. Anomaly Detection**  
+Identify unusual cost patterns
+
+**3. Demand Forecasting**  
+ML-based fleet size predictions
 
 **Changes Required:**
 
@@ -936,29 +1095,45 @@ return (
 
 ### Key Strengths
 
-1. **Accessibility**: Excel files can be opened and audited by anyone
-2. **Simplicity**: No database server or complex infrastructure
-3. **Portability**: Easy to backup, migrate, and deploy
-4. **Auditability**: Clear data lineage and change tracking
-5. **Cost-Effective**: No database licensing fees
+**1. Accessibility**  
+Excel files can be opened and audited by anyone
+
+**2. Simplicity**  
+No database server or complex infrastructure
+
+**3. Portability**  
+Easy to backup, migrate, and deploy
+
+**4. Auditability**  
+Clear data lineage and change tracking
+
+**5. Cost-Effective**  
+No database licensing fees
 
 ### Key Weaknesses
 
-1. **Scalability**: Limited to ~10 concurrent users, ~10 MB files
-2. **Concurrency**: File locking prevents simultaneous writes
-3. **Data Integrity**: No ACID guarantees, corruption risk
-4. **Real-Time**: No WebSockets or live updates
+**1. Scalability**  
+Limited to ~10 concurrent users, ~10 MB files
+
+**2. Concurrency**  
+File locking prevents simultaneous writes
+
+**3. Data Integrity**  
+No ACID guarantees, corruption risk
+
+**4. Real-Time**  
+No WebSockets or live updates
 
 ### Ideal Use Case
 
-This architecture is **ideal for**:
+**This architecture is ideal for:**
 
 - Small to medium utility companies (50-500 vehicles)
 - Organizations with existing Excel-based workflows
 - Environments requiring easy data audit
 - Deployments with limited IT infrastructure
 
-This architecture is **not suitable for**:
+**This architecture is not suitable for:**
 
 - Large-scale deployments (>1000 vehicles)
 - High-concurrency environments (>20 simultaneous users)
